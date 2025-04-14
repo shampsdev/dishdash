@@ -42,6 +42,7 @@ type Config struct {
 	}
 	Auth struct {
 		ApiToken string `envconfig:"API_TOKEN"`
+		BotToken string `envconfig:"BOT_TOKEN"`
 	}
 }
 

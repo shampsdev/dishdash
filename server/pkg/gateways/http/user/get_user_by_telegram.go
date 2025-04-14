@@ -30,7 +30,7 @@ func GetUserByTelegram(userUseCase usecase.User) gin.HandlerFunc {
 			return
 		}
 
-		user, err := userUseCase.GetUserByTelegram(c, &telegram)
+		user, err := userUseCase.GetUserByTelegram(c, telegram)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return

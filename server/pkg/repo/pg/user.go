@@ -113,7 +113,7 @@ func (ur *UserRepo) GetUserByID(ctx context.Context, id string) (*domain.User, e
 	return user, nil
 }
 
-func (ur *UserRepo) GetUserByTelegram(ctx context.Context, telegram *int64) (*domain.User, error) {
+func (ur *UserRepo) GetUserByTelegram(ctx context.Context, telegram int64) (*domain.User, error) {
 	const query = `
 		SELECT id, name, avatar, telegram, created_at, updated_at
 		FROM "user"

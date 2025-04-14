@@ -104,6 +104,56 @@ func (lr *LobbyRepo) SetLobbyState(ctx context.Context, lobbyID string, state do
 	return nil
 }
 
+func (lr *LobbyRepo) GetLatestLobbiesForUser(ctx context.Context, userID string, amount int) ([]*domain.Lobby, error) {
+	const query = `
+	WITH user_lobbies AS (
+		SELECT DISTINCT lobby_id 
+		FROM lobby_user
+		WHERE user_id = $1
+	)
+	SELECT 
+		l.id, 
+		l.created_at, 
+		l.settings,
+		JSON_AGG(
+		JSON_BUILD_OBJECT(
+			'id', lu_all.user_id,
+			'name', u.name,
+			'avatar', u.avatar
+		)
+		) AS users
+	FROM user_lobbies ul
+	JOIN lobby l ON ul.lobby_id = l.id
+	JOIN lobby_user lu_all ON l.id = lu_all.lobby_id
+	JOIN "user" u ON lu_all.user_id = u.id
+	GROUP BY l.id, l.created_at, l.settings
+	ORDER BY l.created_at DESC
+	LIMIT $2;
+	`
+
+	rows, err := lr.db.Query(ctx, query, userID, amount)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get latest lobbies: %w", err)
+	}
+	defer rows.Close()
+
+	lobbies := make([]*domain.Lobby, 0, amount)
+	for rows.Next() {
+		lobby := &domain.Lobby{}
+		err := rows.Scan(
+			&lobby.ID,
+			&lobby.CreatedAt,
+			&lobby.Settings,
+			&lobby.Users,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan lobby: %w", err)
+		}
+		lobbies = append(lobbies, lobby)
+	}
+	return lobbies, nil
+}
+
 var letterRunes = []rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func (lr *LobbyRepo) generateID() string {
