@@ -16,6 +16,7 @@ func SetupHandlers(r *gin.RouterGroup, cases usecase.Cases) {
 
 	collectionGroup.POST("", SaveCollection(cases.Collection))
 	collectionGroup.PUT("", UpdateCollection(cases.Collection))
+	collectionGroup.PATCH("", PatchCollection(cases.Collection))
 	collectionGroup.DELETE("id/:id", DeleteCollection(cases.Collection))
 
 	collectionGroup.GET("/preview", GetAllCollectionsPreview(cases.Collection))

@@ -133,6 +133,49 @@ const docTemplate = `{
                         "description": "Internal Server Error"
                     }
                 }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Patch a collection with same id in the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collections"
+                ],
+                "summary": "Patch a collection",
+                "parameters": [
+                    {
+                        "description": "Collection data",
+                        "name": "collection",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/usecase.UpdateCollectionInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated collection",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Collection"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
             }
         },
         "/collections/id/{id}": {
@@ -1051,6 +1094,10 @@ const docTemplate = `{
         "domain.Tag": {
             "type": "object",
             "properties": {
+                "excluded": {
+                    "description": "Places with excluded tag wont be shown in swipes",
+                    "type": "boolean"
+                },
                 "icon": {
                     "type": "string"
                 },

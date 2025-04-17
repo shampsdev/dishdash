@@ -133,3 +133,17 @@ func UpdatePlaceInputFromDomain(place *domain.Place) UpdatePlaceInput {
 		},
 	}
 }
+
+func UpdateCollectionInputFromDomain(collection *domain.Collection) UpdateCollectionInput {
+	return UpdateCollectionInput{
+		ID: collection.ID,
+		SaveCollectionInput: SaveCollectionInput{
+			Name:        collection.Name,
+			Description: collection.Description,
+			Avatar:      collection.Avatar,
+			Visible:     collection.Visible,
+			Order:       collection.Order,
+			Places:      algo.Map(collection.Places, func(p *domain.Place) int64 { return p.ID }),
+		},
+	}
+}
