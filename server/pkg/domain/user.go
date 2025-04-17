@@ -10,3 +10,11 @@ type User struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
+
+type UserTGData struct {
+	FirstName        string `json:"firstName"`
+	LastName         string `json:"lastName"`
+	TelegramID       int64  `json:"telegramId"`
+	TelegramUsername string `json:"telegramUsername"`
+	Avatar           string `json:"avatar"`
+}

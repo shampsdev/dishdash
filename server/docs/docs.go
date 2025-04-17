@@ -183,7 +183,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/lobbies/{id}": {
+        "/lobbies/id/{id}": {
             "get": {
                 "description": "Get a lobby from the database by ID",
                 "consumes": [
@@ -210,6 +210,42 @@ const docTemplate = `{
                         "description": "lobby data",
                         "schema": {
                             "$ref": "#/definitions/domain.Lobby"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/lobbies/latest": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lobbies"
+                ],
+                "summary": "Get latest lobbies for user",
+                "responses": {
+                    "200": {
+                        "description": "lobby data",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Lobby"
+                            }
                         }
                     },
                     "400": {
@@ -689,6 +725,10 @@ const docTemplate = `{
         "domain.Tag": {
             "type": "object",
             "properties": {
+                "excluded": {
+                    "description": "Places with excluded tag wont be shown in swipes",
+                    "type": "boolean"
+                },
                 "icon": {
                     "type": "string"
                 },

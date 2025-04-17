@@ -18,7 +18,7 @@ import (
 // @Success 200 {object} domain.Lobby "lobby data"
 // @Failure 400 "Bad Request"
 // @Failure 500 "Internal Server Error"
-// @Router /lobbies/{id} [get]
+// @Router /lobbies/id/{id} [get]
 func GetLobbyByID(lobbyUseCase usecase.Lobby) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")

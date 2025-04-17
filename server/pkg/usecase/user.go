@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
 	"dishdash.ru/pkg/domain"
 	"dishdash.ru/pkg/repo"
@@ -36,7 +37,7 @@ func (u UserUseCase) GetUserByID(ctx context.Context, id string) (*domain.User, 
 	return u.uRepo.GetUserByID(ctx, id)
 }
 
-func (u UserUseCase) GetUserByTelegram(ctx context.Context, telegram *int64) (*domain.User, error) {
+func (u UserUseCase) GetUserByTelegram(ctx context.Context, telegram int64) (*domain.User, error) {
 	return u.uRepo.GetUserByTelegram(ctx, telegram)
 }
 
@@ -46,4 +47,13 @@ func (u UserUseCase) GetAllUsers(ctx context.Context) ([]*domain.User, error) {
 
 func (u UserUseCase) GetUsersByLobbyID(ctx context.Context, lobbyID string) ([]*domain.User, error) {
 	return u.uRepo.GetUsersByLobbyID(ctx, lobbyID)
+}
+
+func (u UserUseCase) GetUserByTGData(ctx context.Context, tgData *domain.UserTGData) (*domain.User, error) {
+	user, err := u.uRepo.GetUserByTelegram(ctx, tgData.TelegramID)
+	if err != nil {
+		return nil, fmt.Errorf("could not get user by telegram: %w", err)
+	}
+
+	return user, nil
 }

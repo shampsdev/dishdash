@@ -50,7 +50,7 @@ type User interface {
 	SaveUserWithID(ctx context.Context, user *domain.User, id string) error
 	UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error)
 	GetUserByID(ctx context.Context, id string) (*domain.User, error)
-	GetUserByTelegram(ctx context.Context, telegram *int64) (*domain.User, error)
+	GetUserByTelegram(ctx context.Context, telegram int64) (*domain.User, error)
 	GetAllUsers(ctx context.Context) ([]*domain.User, error)
 
 	AttachUsersToLobby(ctx context.Context, userID []string, lobbyID string) error
@@ -65,6 +65,8 @@ type Lobby interface {
 
 	SetLobbySettings(ctx context.Context, lobbyID string, settings domain.LobbySettings) error
 	SetLobbyState(ctx context.Context, lobbyID string, state domain.LobbyState) error
+
+	GetLatestLobbiesForUser(ctx context.Context, userID string, amount int) ([]*domain.Lobby, error)
 }
 
 type Swipe interface {

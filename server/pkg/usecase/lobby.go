@@ -138,3 +138,7 @@ func (l LobbyUseCase) GetLobbyByID(ctx context.Context, id string) (*domain.Lobb
 
 	return lobby, nil
 }
+
+func (l LobbyUseCase) GetLatestLobbiesForUser(ctx context.Context, userID string, amount int) ([]*domain.Lobby, error) {
+	return l.lRepo.GetLatestLobbiesForUser(ctx, userID, amount)
+}
