@@ -132,8 +132,8 @@ INSERT INTO "collection" ("id", "type", "name", "description", "avatar", "create
 VALUES 
 ('test-collection-1', 'basic', 'test collection', 'test description', 'https://example.com/avatar.jpg', NOW(), NOW(), true, 1, 'admin');
 
-INSERT INTO "collection_place" ("collection_id", "place_id")
+INSERT INTO "collection_place" ("collection_id", "place_id", "order")
 VALUES 
-('test-collection-1', (SELECT id FROM place WHERE title = 'Cous-Cous')),
-('test-collection-1', (SELECT id FROM place WHERE title = 'Шавафель')),
-('test-collection-1', (SELECT id FROM place WHERE title = 'ЛюдиЛюбят'));
+('test-collection-1', (SELECT id FROM place WHERE title = 'Cous-Cous'), 1),
+('test-collection-1', (SELECT id FROM place WHERE title = 'Шавафель'), 2),
+('test-collection-1', (SELECT id FROM place WHERE title = 'ЛюдиЛюбят'), 3);
