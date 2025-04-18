@@ -128,9 +128,9 @@ INSERT INTO "place_tag" (place_id, tag_id) VALUES
 ((SELECT id FROM place WHERE title = 'Невидимое место'), (SELECT id FROM tag WHERE name = 'excluded'));
 
 
-INSERT INTO "collection" ("id", "name", "description", "avatar", "created_at", "updated_at", "visible", "order")
+INSERT INTO "collection" ("id", "type", "name", "description", "avatar", "created_at", "updated_at", "visible", "order", "owner_id")
 VALUES 
-('test-collection-1', 'test collection', 'test description', 'https://example.com/avatar.jpg', NOW(), NOW(), true, 1);
+('test-collection-1', 'basic', 'test collection', 'test description', 'https://example.com/avatar.jpg', NOW(), NOW(), true, 1, 'admin');
 
 INSERT INTO "collection_place" ("collection_id", "place_id")
 VALUES 
