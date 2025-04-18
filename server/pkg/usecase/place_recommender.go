@@ -37,7 +37,7 @@ func (pr *PlaceRecommender) RecommendPlaces(
 	settings domain.LobbySettings,
 ) ([]*domain.Place, error) {
 	log.Debug("Starting recommendation process")
-	var dbPlaces []*domain.Place
+	var places []*domain.Place
 	var err error
 
 	switch settings.Type {
@@ -51,11 +51,11 @@ func (pr *PlaceRecommender) RecommendPlaces(
 			settings.ClassicPlaces.Recommendation = defaultRecommendationOpts()
 		}
 
-		dbPlaces, err = pr.dbPRRepo.RecommendClassicPlaces(ctx, *settings.ClassicPlaces)
+		places, err = pr.dbPRRepo.RecommendClassicPlaces(ctx, *settings.ClassicPlaces)
 		if err != nil {
 			return nil, fmt.Errorf("can't recommend from db: %w", err)
 		}
-		log.Debugf("Got %d places from db", len(dbPlaces))
+		log.Debugf("Got %d places from db", len(places))
 
 	case domain.CollectionPlacesLobbyType:
 		log.Debug("Using collection recommendation")
@@ -64,7 +64,7 @@ func (pr *PlaceRecommender) RecommendPlaces(
 			return nil, errors.New("collection recommendation settings are chosen but not set")
 		}
 
-		places, err := pr.pRepo.GetPlacesByCollection(ctx, settings.CollectionPlaces.CollectionID)
+		places, err = pr.pRepo.GetPlacesByCollection(ctx, settings.CollectionPlaces.CollectionID)
 		if err != nil {
 			return nil, fmt.Errorf("can't get collection: %w", err)
 		}
@@ -77,8 +77,8 @@ func (pr *PlaceRecommender) RecommendPlaces(
 		return nil, fmt.Errorf("unsupported recommendation type: %s", settings.Type)
 	}
 
-	dbPlaces = algo.Filter(dbPlaces, placeIncluded)
-	return dbPlaces, nil
+	places = algo.Filter(places, placeIncluded)
+	return places, nil
 }
 
 func placeIncluded(p *domain.Place) bool {
