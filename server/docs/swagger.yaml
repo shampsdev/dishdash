@@ -30,10 +30,10 @@ definitions:
         items:
           $ref: '#/definitions/domain.Place'
         type: array
+      type:
+        $ref: '#/definitions/domain.CollectionType'
       updatedAt:
         type: string
-      visible:
-        type: boolean
     type: object
   domain.CollectionPlacesSettings:
     properties:
@@ -42,25 +42,14 @@ definitions:
       location:
         $ref: '#/definitions/domain.Coordinate'
     type: object
-  domain.CollectionPreview:
-    properties:
-      avatar:
-        type: string
-      createdAt:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      order:
-        type: integer
-      updatedAt:
-        type: string
-      visible:
-        type: boolean
-    type: object
+  domain.CollectionType:
+    enum:
+    - basic
+    - favorites
+    type: string
+    x-enum-varnames:
+    - CollectionTypeBasic
+    - CollectionTypeFavorites
   domain.Coordinate:
     properties:
       lat:
@@ -223,26 +212,96 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get a list of collections from the database
       produces:
       - application/json
       responses:
         "200":
-          description: List of collections
+          description: Collections data
           schema:
             items:
               $ref: '#/definitions/domain.Collection'
             type: array
+        "400":
+          description: Bad Request
         "500":
           description: Internal Server Error
-      summary: Get collections
+      security:
+      - ApiKeyAuth: []
+      summary: Get visible collections
       tags:
       - collections
-  /collections/{id}:
+  /collections/favorites:
     get:
       consumes:
       - application/json
-      description: Get a collection with same id from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Collection
+          schema:
+            $ref: '#/definitions/domain.Collection'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Get favorites
+      tags:
+      - collections
+  /collections/favorites/add_place/{place_id}:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Place ID
+        in: path
+        name: place_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Add place to favorites
+      tags:
+      - collections
+  /collections/favorites/remove_place/{place_id}:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Place ID
+        in: path
+        name: place_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Remove place from favorites
+      tags:
+      - collections
+  /collections/id/{id}:
+    get:
+      consumes:
+      - application/json
       parameters:
       - description: Collection ID
         in: path
@@ -256,51 +315,13 @@ paths:
           description: Collection
           schema:
             $ref: '#/definitions/domain.Collection'
+        "400":
+          description: Bad Request
         "500":
           description: Internal Server Error
-      summary: Get a collection
-      tags:
-      - collections
-  /collections/preview:
-    get:
-      consumes:
-      - application/json
-      description: Get a list of collections preveiws from the database
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of collections previews
-          schema:
-            items:
-              $ref: '#/definitions/domain.CollectionPreview'
-            type: array
-        "500":
-          description: Internal Server Error
-      summary: Get collections previews
-      tags:
-      - collections
-  /collections/preview/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get a collection preview with same id from database
-      parameters:
-      - description: Collection ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Collection
-          schema:
-            $ref: '#/definitions/domain.CollectionPreview'
-        "500":
-          description: Internal Server Error
-      summary: Get a collection preview
+      security:
+      - ApiKeyAuth: []
+      summary: Get collection by id
       tags:
       - collections
   /lobbies:

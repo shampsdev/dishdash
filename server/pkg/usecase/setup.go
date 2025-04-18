@@ -8,7 +8,7 @@ import (
 func Setup(pool *pgxpool.Pool) Cases {
 	pr := pg.NewPlaceRepo(pool)
 	tr := pg.NewTagRepo(pool)
-	cr := pg.NewCollectionRepo(pool)
+	cr := pg.NewCollectionRepo(pool, pr)
 	lr := pg.NewLobbyRepo(pool)
 	ur := pg.NewUserRepo(pool)
 	sr := pg.NewSwipeRepo(pool)
@@ -17,12 +17,11 @@ func Setup(pool *pgxpool.Pool) Cases {
 	lu := NewLobbyUseCase(lr, ur, tr, pr, sr)
 	su := NewSwipeUseCase(sr)
 	uu := NewUserUseCase(ur)
-	cu := NewCollectionUseCase(cr)
+	cu := NewCollectionUseCase(cr, pr)
 	placeRecommender := NewPlaceRecommender(
 		prr,
 		pr,
 		tr,
-		cr,
 	)
 
 	return Cases{

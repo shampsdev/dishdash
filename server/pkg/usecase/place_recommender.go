@@ -18,20 +18,17 @@ type PlaceRecommender struct {
 
 	pRepo repo.Place
 	tRepo repo.Tag
-	cRepo repo.Collection
 }
 
 func NewPlaceRecommender(
 	dbPRRepo repo.PlaceRecommender,
 	pRepo repo.Place,
 	tRepo repo.Tag,
-	cRepo repo.Collection,
 ) *PlaceRecommender {
 	return &PlaceRecommender{
 		dbPRRepo: dbPRRepo,
 		pRepo:    pRepo,
 		tRepo:    tRepo,
-		cRepo:    cRepo,
 	}
 }
 
@@ -67,17 +64,15 @@ func (pr *PlaceRecommender) RecommendPlaces(
 			return nil, errors.New("collection recommendation settings are chosen but not set")
 		}
 
-		collection, err := pr.cRepo.GetCollectionWithPlacesByID(ctx, settings.CollectionPlaces.CollectionID)
+		places, err := pr.pRepo.GetPlacesByCollection(ctx, settings.CollectionPlaces.CollectionID)
 		if err != nil {
 			return nil, fmt.Errorf("can't get collection: %w", err)
 		}
 		if settings.CollectionPlaces.Location != nil {
-			geo.SortPlacesByDistance(collection.Places, *settings.CollectionPlaces.Location)
+			geo.SortPlacesByDistance(places, *settings.CollectionPlaces.Location)
 		}
 
-		dbPlaces = collection.Places
-		log.Debugf("Got %d places from db", len(dbPlaces))
-
+		log.Debugf("Got %d places from db", len(places))
 	default:
 		return nil, fmt.Errorf("unsupported recommendation type: %s", settings.Type)
 	}
