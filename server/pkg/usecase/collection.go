@@ -34,7 +34,7 @@ func (c *CollectionUseCase) GetFavorites(ctx context.Context, actorID string) (*
 func (c *CollectionUseCase) getOrCreateFavorites(ctx context.Context, actorID string) (*domain.AdminCollection, error) {
 	filter := domain.AdminCollectionFilter{
 		CollectionFilter: domain.CollectionFilter{
-		Types: []domain.CollectionType{domain.CollectionTypeFavorites},
+			Types: []domain.CollectionType{domain.CollectionTypeFavorites},
 		},
 		OwnerID: ptrTo(actorID),
 	}
