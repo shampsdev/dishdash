@@ -24,7 +24,7 @@ func GetAll(collectionCase usecase.Collection) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := middlewares.MustGetUser(c)
 		collections, err := collectionCase.GetVisibleCollections(c, user.ID)
-		if ginerr.AbortIfErr(c, err, http.StatusBadRequest, "failed to get chats") {
+		if ginerr.AbortIfErr(c, err, http.StatusBadRequest, "failed to get collections") {
 			return
 		}
 		c.JSON(http.StatusOK, collections)
