@@ -87,3 +87,11 @@ type Collection interface {
 	GetCollectionByID(ctx context.Context, id string) (*domain.AdminCollection, error)
 	FilterCollections(ctx context.Context, filter domain.AdminCollectionFilter) ([]*domain.AdminCollection, error)
 }
+
+type Story interface {
+	SaveStory(ctx context.Context, story *domain.Story) (string, error)
+	PatchStory(ctx context.Context, story *domain.StoryPatch) error
+	GetStoryByID(ctx context.Context, id string) (*domain.Story, error)
+	DeleteStoryByID(ctx context.Context, id string) error
+	FilterStories(ctx context.Context, filter domain.StoryFilter) ([]*domain.Story, error)
+}

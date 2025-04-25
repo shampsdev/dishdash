@@ -158,6 +158,38 @@ definitions:
     type: string
     x-enum-varnames:
     - RecommendationTypeClassic
+  domain.Story:
+    properties:
+      created_at:
+        type: string
+      icon:
+        type: string
+      id:
+        type: string
+      src:
+        type: string
+      stories:
+        items:
+          $ref: '#/definitions/domain.StoryData'
+        type: array
+      title:
+        type: string
+      visible:
+        type: boolean
+    type: object
+  domain.StoryData:
+    properties:
+      description:
+        type: string
+      duration:
+        type: integer
+      title:
+        type: string
+      type:
+        type: string
+      url:
+        type: string
+    type: object
   domain.Swipe:
     properties:
       cardID:
@@ -442,6 +474,54 @@ paths:
       summary: Get tags
       tags:
       - places
+  /stories:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Story data
+          schema:
+            items:
+              $ref: '#/definitions/domain.Story'
+            type: array
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Get visible stories
+      tags:
+      - stories
+  /stories/id/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Story ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Story
+          schema:
+            $ref: '#/definitions/domain.Story'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Get story by id
+      tags:
+      - stories
   /users:
     post:
       consumes:

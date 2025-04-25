@@ -137,6 +137,62 @@ definitions:
       url:
         type: string
     type: object
+  domain.Story:
+    properties:
+      created_at:
+        type: string
+      icon:
+        type: string
+      id:
+        type: string
+      src:
+        type: string
+      stories:
+        items:
+          $ref: '#/definitions/domain.StoryData'
+        type: array
+      title:
+        type: string
+      visible:
+        type: boolean
+    type: object
+  domain.StoryData:
+    properties:
+      description:
+        type: string
+      duration:
+        type: integer
+      title:
+        type: string
+      type:
+        type: string
+      url:
+        type: string
+    type: object
+  domain.StoryFilter:
+    properties:
+      title:
+        type: string
+      visible:
+        type: boolean
+    type: object
+  domain.StoryPatch:
+    properties:
+      icon:
+        type: string
+      id:
+        type: string
+      src:
+        type: string
+      stories:
+        items:
+          $ref: '#/definitions/domain.StoryData'
+        type: array
+      title:
+        type: string
+      visible:
+        type: boolean
+    type: object
   domain.Tag:
     properties:
       excluded:
@@ -784,6 +840,140 @@ paths:
       summary: Delete a tag
       tags:
       - tags
+  /stories:
+    patch:
+      consumes:
+      - application/json
+      description: Patch a story with the same ID in the database
+      parameters:
+      - description: Story data
+        in: body
+        name: story
+        required: true
+        schema:
+          $ref: '#/definitions/domain.StoryPatch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated story
+          schema:
+            $ref: '#/definitions/domain.Story'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Patch a story
+      tags:
+      - stories
+    post:
+      consumes:
+      - application/json
+      description: Create a new story in the database
+      parameters:
+      - description: Story data
+        in: body
+        name: story
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Story'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Saved story
+          schema:
+            $ref: '#/definitions/domain.Story'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Create a story
+      tags:
+      - stories
+  /stories/filter:
+    post:
+      consumes:
+      - application/json
+      description: Get a list of story previews from the database
+      parameters:
+      - description: Filter
+        in: body
+        name: filter
+        required: true
+        schema:
+          $ref: '#/definitions/domain.StoryFilter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of stories previews
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/domain.Story'
+              type: array
+            type: array
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Get stories previews
+      tags:
+      - stories
+  /stories/id/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a story with the same ID in the database
+      parameters:
+      - description: Story ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a story
+      tags:
+      - stories
+    get:
+      consumes:
+      - application/json
+      description: Get a story with the same id from the database
+      parameters:
+      - description: Story ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Story
+          schema:
+            $ref: '#/definitions/domain.Story'
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Get a story
+      tags:
+      - stories
 securityDefinitions:
   ApiKeyAuth:
     in: header

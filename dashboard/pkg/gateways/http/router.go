@@ -6,6 +6,7 @@ import (
 	"dashboard.dishdash.ru/pkg/gateways/http/image"
 	"dashboard.dishdash.ru/pkg/gateways/http/middlewares"
 	"dashboard.dishdash.ru/pkg/gateways/http/place"
+	"dashboard.dishdash.ru/pkg/gateways/http/story"
 	"dashboard.dishdash.ru/pkg/gateways/http/tag"
 	"dishdash.ru/pkg/usecase"
 	swaggerfiles "github.com/swaggo/files"
@@ -23,6 +24,7 @@ func setupRouter(s *Server, useCases usecase.Cases) {
 		tag.SetupHandlers(v1, useCases)
 		collection.SetupHandlers(v1, useCases)
 		image.SetupHandlers(v1)
+		story.SetupHandlers(v1, useCases)
 	}
 
 	docs.SwaggerInfo.BasePath = "/api/v1"

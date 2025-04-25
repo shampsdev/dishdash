@@ -16,6 +16,7 @@ type Cases struct {
 	Lobby      Lobby
 	RoomRepo   RoomRepo
 	Collection Collection
+	Story      Story
 }
 
 type Tag interface {
@@ -122,4 +123,14 @@ type Collection interface {
 	AdminGetCollectionByID(ctx context.Context, id string) (*domain.AdminCollection, error)
 	AdminFilterCollections(ctx context.Context, filter domain.AdminCollectionFilter) ([]*domain.AdminCollection, error)
 	AdminDeleteCollection(ctx context.Context, id string) error
+}
+
+type Story interface {
+	GetVisibleStories(ctx context.Context) ([]*domain.Story, error)
+	GetStoryByID(ctx context.Context, id string) (*domain.Story, error)
+
+	PatchStory(ctx context.Context, story *domain.StoryPatch) (*domain.Story, error)
+	SaveStory(ctx context.Context, story *domain.Story) (*domain.Story, error)
+	DeleteStoryByID(ctx context.Context, id string) error
+	FilterStories(ctx context.Context, filter domain.StoryFilter) ([]*domain.Story, error)
 }
