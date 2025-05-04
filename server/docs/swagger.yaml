@@ -411,6 +411,11 @@ paths:
     get:
       consumes:
       - application/json
+      parameters:
+      - description: limit
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:

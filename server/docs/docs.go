@@ -299,6 +299,14 @@ const docTemplate = `{
                     "lobbies"
                 ],
                 "summary": "Get latest lobbies for user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "lobby data",
