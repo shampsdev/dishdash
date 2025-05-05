@@ -326,6 +326,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/places/address": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "places"
+                ],
+                "summary": "Get address by location",
+                "parameters": [
+                    {
+                        "description": "Location",
+                        "name": "location",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Coordinate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Place",
+                        "schema": {
+                            "$ref": "#/definitions/place.addressResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/places/id/{id}": {
             "get": {
                 "security": [
@@ -985,6 +1029,14 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "place.addressResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
                     "type": "string"
                 }
             }

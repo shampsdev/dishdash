@@ -234,6 +234,11 @@ definitions:
       updatedAt:
         type: string
     type: object
+  place.addressResponse:
+    properties:
+      address:
+        type: string
+    type: object
 info:
   contact: {}
   description: Manage cards, lobbies, swipes
@@ -434,6 +439,33 @@ paths:
       summary: Get latest lobbies for user
       tags:
       - lobbies
+  /places/address:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Location
+        in: body
+        name: location
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Coordinate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Place
+          schema:
+            $ref: '#/definitions/place.addressResponse'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Get address by location
+      tags:
+      - places
   /places/id/{id}:
     get:
       consumes:

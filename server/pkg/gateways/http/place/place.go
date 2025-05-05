@@ -11,4 +11,5 @@ func SetupHandlers(r *gin.RouterGroup, cases usecase.Cases) {
 	middlewares.SetupAuth(placeGroup, cases.User)
 
 	placeGroup.GET("/id/:id", GetByID(cases.Place))
+	r.POST("/places/address", Address())
 }
