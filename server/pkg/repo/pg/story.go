@@ -50,6 +50,9 @@ func (r *StoryRepo) PatchStory(ctx context.Context, story *domain.StoryPatch) er
 	if story.Visible != nil {
 		s = s.Set("visible", *story.Visible)
 	}
+	if story.Stories != nil {
+		s = s.Set("stories", *story.Stories)
+	}
 	sql, args, err := s.ToSql()
 	if err != nil {
 		return fmt.Errorf("failed to build query: %w", err)
