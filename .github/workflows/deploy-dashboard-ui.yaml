@@ -20,7 +20,7 @@ jobs:
     secrets: inherit
     with:
       dockerfile_path: 'dashboard-ui'
-      context_path: '.'
+      context_path: 'dashboard-ui'
       image_name: 'dishdash-dashboard'
       environment: ${{ github.event.inputs.environment }}
       secret-service-hash: ${{ github.event.inputs.environment == 'PROD' && 'DASHBOARD_UI_HASH' || 'DASHBOARD_UI_HASH_DEV' }}
