@@ -128,7 +128,17 @@ func (c *CollectionUseCase) AdminSaveCollection(ctx context.Context, collection 
 }
 
 func (c *CollectionUseCase) AdminGetCollectionByID(ctx context.Context, id string) (*domain.AdminCollection, error) {
-	return c.cRepo.GetCollectionByID(ctx, id)
+	collection, err := c.cRepo.GetCollectionByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("could not get collection: %w", err)
+	}
+
+	collection.Places, err = c.pRepo.GetPlacesByCollection(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("could not get places: %w", err)
+	}
+
+	return collection, nil
 }
 
 func (c *CollectionUseCase) AdminPatchCollection(ctx context.Context, collection *domain.AdminPatchCollection) (*domain.AdminCollection, error) {
