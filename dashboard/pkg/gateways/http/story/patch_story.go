@@ -1,4 +1,4 @@
-package collection
+package story
 
 import (
 	"encoding/json"
@@ -9,34 +9,34 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// PatchCollection godoc
-// @Summary Patch a collection
-// @Description Patch a collection with same id in the database
-// @Tags collections
+// PatchStory godoc
+// @Summary Patch a story
+// @Description Patch a story with the same ID in the database
+// @Tags stories
 // @Accept json
 // @Produce json
 // @Schemes http https
-// @Param collection body domain.AdminPatchCollection true "Collection data"
-// @Success 200 {object} domain.AdminCollection "Updated collection"
+// @Param story body domain.StoryPatch true "Story data"
+// @Success 200 {object} domain.Story "Updated story"
 // @Failure 400 "Bad Request"
 // @Failure 500 "Internal Server Error"
 // @Security ApiKeyAuth
-// @Router /collections [patch]
-func PatchCollection(collectionUseCase usecase.Collection) gin.HandlerFunc {
+// @Router /stories [patch]
+func PatchStory(storyUseCase usecase.Story) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var patch domain.AdminPatchCollection
+		var patch domain.StoryPatch
 		err := json.NewDecoder(c.Request.Body).Decode(&patch)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		collection, err := collectionUseCase.AdminPatchCollection(c, &patch)
+		story, err := storyUseCase.PatchStory(c, &patch)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		c.JSON(http.StatusOK, collection)
+		c.JSON(http.StatusOK, story)
 	}
 }

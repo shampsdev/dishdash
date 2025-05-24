@@ -112,7 +112,8 @@ func (lr *LobbyRepo) GetLatestLobbiesForUser(ctx context.Context, userID string,
 		WHERE user_id = $1
 	)
 	SELECT 
-		l.id, 
+		l.id,
+		l.state,
 		l.created_at, 
 		l.settings,
 		JSON_AGG(
@@ -142,6 +143,7 @@ func (lr *LobbyRepo) GetLatestLobbiesForUser(ctx context.Context, userID string,
 		lobby := &domain.Lobby{}
 		err := rows.Scan(
 			&lobby.ID,
+			&lobby.State,
 			&lobby.CreatedAt,
 			&lobby.Settings,
 			&lobby.Users,

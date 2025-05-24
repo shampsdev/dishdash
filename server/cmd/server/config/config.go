@@ -41,8 +41,9 @@ type Config struct {
 		DistBound  int     `default:"1000000" envconfig:"RECOMENDATION_DIST_BOUND"`
 	}
 	Auth struct {
-		ApiToken string `envconfig:"API_TOKEN"`
-		BotToken string `envconfig:"BOT_TOKEN"`
+		ApiToken       string `envconfig:"API_TOKEN"`
+		BotToken       string `envconfig:"BOT_TOKEN"`
+		DadataApiToken string `envconfig:"DADATA_API_TOKEN"`
 	}
 }
 

@@ -7,6 +7,9 @@ services:
       - ~/.pg/dishdash-db:/var/lib/postgresql/data
     env_file:
       - .env
+    environment:
+      POSTGRES_LOGGING_COLLECTOR: "on"
+      POSTGRES_LOG_STATEMENT: "all"
     ports:
       - "5432:5432"
   adminer:

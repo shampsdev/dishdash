@@ -3,6 +3,7 @@ package collection
 import (
 	"net/http"
 
+	"dishdash.ru/pkg/domain"
 	"dishdash.ru/pkg/usecase"
 	"github.com/gin-gonic/gin"
 )
@@ -14,22 +15,22 @@ import (
 // @Accept  json
 // @Produce  json
 // @Schemes http https
-// @Param collection body usecase.SaveCollectionInput true "Collection data"
-// @Success 200 {object} domain.Collection "Saved collection"
+// @Param collection body domain.AdminCreateCollection true "Collection data"
+// @Success 200 {object} domain.AdminCollection "Saved collection"
 // @Failure 400 "Bad Request"
 // @Failure 500 "Internal Server Error"
 // @Security ApiKeyAuth
 // @Router /collections [post]
 func SaveCollection(collectionUseCase usecase.Collection) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var collectionInput usecase.SaveCollectionInput
+		var collectionInput domain.AdminCreateCollection
 		err := c.BindJSON(&collectionInput)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		collection, err := collectionUseCase.SaveCollection(c, collectionInput)
+		collection, err := collectionUseCase.AdminSaveCollection(c, &collectionInput)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return

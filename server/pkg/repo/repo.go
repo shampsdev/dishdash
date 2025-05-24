@@ -34,6 +34,11 @@ type Place interface {
 	DetachPlacesFromLobby(ctx context.Context, lobbyID string) error
 	AttachOrderedPlacesToLobby(ctx context.Context, placeIDs []int64, lobbyID string) error
 	GetOrderedPlacesByLobbyID(ctx context.Context, lobbyID string) ([]*domain.Place, error)
+
+	GetPlacesByCollection(ctx context.Context, collectionID string) ([]*domain.Place, error)
+	AttachPlacesToCollection(ctx context.Context, placeIDs []int64, collectionID string) error
+	DetachAllPlacesFromCollection(ctx context.Context, collectionID string) error
+	DetachPlaceFromCollection(ctx context.Context, placeID int64, collectionID string) error
 }
 
 type PlacesFilter struct {
@@ -76,14 +81,17 @@ type Swipe interface {
 }
 
 type Collection interface {
-	SaveCollection(ctx context.Context, collection *domain.Collection) (string, error)
-	GetCollectionByID(ctx context.Context, collectionID string) (*domain.Collection, error)
-	GetAllCollections(ctx context.Context) ([]*domain.Collection, error)
-	DeleteCollectionByID(ctx context.Context, collectionID string) error
-	AttachPlacesToCollection(ctx context.Context, placeIDs []int64, collectionID string) error
-	DetachPlacesFromCollection(ctx context.Context, collectionID string) error
-	UpdateCollection(ctx context.Context, collection *domain.Collection) error
-	GetPlacesByCollectionID(ctx context.Context, collectionID string) ([]*domain.Place, error)
-	GetAllCollectionsWithPlaces(ctx context.Context) ([]*domain.Collection, error)
-	GetCollectionWithPlacesByID(ctx context.Context, collectionID string) (*domain.Collection, error)
+	SaveCollection(ctx context.Context, collection *domain.AdminCreateCollection) (string, error)
+	PatchCollection(ctx context.Context, collection *domain.AdminPatchCollection) error
+	DeleteCollection(ctx context.Context, id string) error
+	GetCollectionByID(ctx context.Context, id string) (*domain.AdminCollection, error)
+	FilterCollections(ctx context.Context, filter domain.AdminCollectionFilter) ([]*domain.AdminCollection, error)
+}
+
+type Story interface {
+	SaveStory(ctx context.Context, story *domain.Story) (string, error)
+	PatchStory(ctx context.Context, story *domain.StoryPatch) error
+	GetStoryByID(ctx context.Context, id string) (*domain.Story, error)
+	DeleteStoryByID(ctx context.Context, id string) error
+	FilterStories(ctx context.Context, filter domain.StoryFilter) ([]*domain.Story, error)
 }

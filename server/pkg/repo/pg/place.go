@@ -404,6 +404,111 @@ func (pr *PlaceRepo) FilterPlaces(ctx context.Context, filter repo.PlacesFilter)
 	return places, nil
 }
 
+func (pr *PlaceRepo) AttachPlacesToCollection(ctx context.Context, placeIDs []int64, collectionID string) error {
+	if len(placeIDs) == 0 {
+		return nil
+	}
+	batch := &pgx.Batch{}
+
+	order, err := pr.getLatestOrder(ctx, collectionID)
+	if err != nil {
+		return fmt.Errorf("could not get latest order: %w", err)
+	}
+	query := `INSERT INTO collection_place ("collection_id", "place_id", "order") VALUES ($1, $2, $3)`
+	for i, placeID := range placeIDs {
+		batch.Queue(query, collectionID, placeID, order+1+i)
+	}
+
+	br := pr.db.SendBatch(ctx, batch)
+	defer br.Close()
+
+	_, err = br.Exec()
+	if err != nil {
+		return fmt.Errorf("could not attach places to collection: %w", err)
+	}
+	return nil
+}
+
+func (pr *PlaceRepo) getLatestOrder(ctx context.Context, collectionID string) (int, error) {
+	q := `SELECT MAX("order") FROM collection_place WHERE collection_id = $1`
+	var order *int
+	err := pr.db.QueryRow(ctx, q, collectionID).Scan(&order)
+	if err != nil {
+		return 0, err
+	}
+	if order == nil {
+		return 0, nil
+	}
+	return *order, nil
+}
+
+func (pr *PlaceRepo) DetachAllPlacesFromCollection(ctx context.Context, collectionID string) error {
+	q := `DELETE FROM collection_place WHERE collection_id = $1`
+	_, err := pr.db.Exec(ctx, q, collectionID)
+	return err
+}
+
+func (pr *PlaceRepo) DetachPlaceFromCollection(ctx context.Context, placeID int64, collectionID string) error {
+	q := `DELETE FROM collection_place WHERE place_id = $1 AND collection_id = $2`
+	_, err := pr.db.Exec(ctx, q, placeID, collectionID)
+	return err
+}
+
+func (pr *PlaceRepo) GetPlacesByCollection(ctx context.Context, collectionID string) ([]*domain.Place, error) {
+	query := `
+	SELECT
+		p.id,
+		p.title,
+		p.short_description,
+		p.description,
+		p.images,
+		p.location,
+		p.address,
+		p.price_avg,
+		p.review_rating,
+		p.review_count,
+		p.updated_at, 
+		p.source,
+		p.url,
+		p.boost,
+		p.boost_radius,
+		COALESCE(
+			JSON_AGG(
+				JSON_BUILD_OBJECT('id', t.id, 'name', t.name, 'icon', t.icon, 'visible', t.visible, 'order', t.order, 'excluded', t.excluded)
+			) FILTER (WHERE t.id IS NOT NULL),
+			'[]'
+		) AS tags
+	FROM "place" AS p
+	LEFT JOIN "place_tag" AS pt ON p.id = pt.place_id
+	LEFT JOIN "tag" AS t ON pt.tag_id = t.id
+	JOIN "collection_place" AS pc ON p.id = pc.place_id
+	WHERE pc.collection_id = $1
+	GROUP BY p.id, pc.order
+	ORDER BY pc.order ASC;
+	`
+
+	rows, err := pr.db.Query(ctx, query, collectionID)
+	if err != nil {
+		return nil, fmt.Errorf("could not get places by lobby ID: %w", err)
+	}
+	defer rows.Close()
+
+	places := make([]*domain.Place, 0)
+	for rows.Next() {
+		place, err := scanPlace(rows)
+		if err != nil {
+			return nil, fmt.Errorf("could not get places by lobby ID: %w", err)
+		}
+		places = append(places, place)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return places, nil
+}
+
 type Scanner interface {
 	Scan(dest ...any) error
 }
@@ -440,7 +545,7 @@ func scanPlace(s Scanner) (*domain.Place, error) {
 
 	p.Images = strings.Split(imagesStr, ",")
 
-	var tags []domain.Tag
+	tags := []domain.Tag{}
 	if err := json.Unmarshal([]byte(tagsJSON), &tags); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal tags: %w", err)
 	}

@@ -15,7 +15,7 @@ import (
 // @Produce  json
 // @Schemes http https
 // @Param id path string true "Collection ID"
-// @Success 200 {object} domain.Collection "Collection"
+// @Success 200 {object} domain.AdminCollection "Collection"
 // @Failure 500
 // @Security ApiKeyAuth
 // @Router /collections/id/{id} [get]
@@ -23,7 +23,7 @@ func GetCollectionByID(collectionUseCase usecase.Collection) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
 
-		collection, err := collectionUseCase.GetCollectionByID(c, id)
+		collection, err := collectionUseCase.AdminGetCollectionByID(c, id)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return

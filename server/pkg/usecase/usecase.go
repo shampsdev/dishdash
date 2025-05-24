@@ -16,6 +16,7 @@ type Cases struct {
 	Lobby      Lobby
 	RoomRepo   RoomRepo
 	Collection Collection
+	Story      Story
 }
 
 type Tag interface {
@@ -87,31 +88,6 @@ type Swipe interface {
 	GetSwipesByLobbyID(ctx context.Context, lobbyID string) ([]*domain.Swipe, error)
 }
 
-type SaveCollectionInput struct {
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Avatar      string  `json:"avatar"`
-	Visible     bool    `json:"visible"`
-	Order       int64   `json:"order"`
-	Places      []int64 `json:"places"`
-}
-
-type UpdateCollectionInput struct {
-	ID string
-	SaveCollectionInput
-}
-
-type Collection interface {
-	SaveCollection(ctx context.Context, saveCollectionInput SaveCollectionInput) (*domain.Collection, error)
-	GetAllCollections(ctx context.Context) ([]*domain.Collection, error)
-	GetAllCollectionsWithPlaces(ctx context.Context) ([]*domain.Collection, error)
-	DeleteCollection(ctx context.Context, collectionID string) error
-	UpdateCollection(ctx context.Context, updateCollectionInput UpdateCollectionInput) (*domain.Collection, error)
-	GetCollectionByID(ctx context.Context, collectionID string) (*domain.Collection, error)
-	GetAllCollectionsPreviews(ctx context.Context) ([]*domain.Collection, error)
-	GetCollectionPreviewByID(ctx context.Context, collectionID string) (*domain.Collection, error)
-}
-
 func UpdatePlaceInputFromDomain(place *domain.Place) UpdatePlaceInput {
 	return UpdatePlaceInput{
 		ID: place.ID,
@@ -134,16 +110,27 @@ func UpdatePlaceInputFromDomain(place *domain.Place) UpdatePlaceInput {
 	}
 }
 
-func UpdateCollectionInputFromDomain(collection *domain.Collection) UpdateCollectionInput {
-	return UpdateCollectionInput{
-		ID: collection.ID,
-		SaveCollectionInput: SaveCollectionInput{
-			Name:        collection.Name,
-			Description: collection.Description,
-			Avatar:      collection.Avatar,
-			Visible:     collection.Visible,
-			Order:       collection.Order,
-			Places:      algo.Map(collection.Places, func(p *domain.Place) int64 { return p.ID }),
-		},
-	}
+type Collection interface {
+	GetFavorites(ctx context.Context, actorID string) (*domain.Collection, error)
+	AddPlaceToFavorites(ctx context.Context, actorID string, placeID int64) error
+	RemovePlaceFromFavorites(ctx context.Context, actorID string, placeID int64) error
+
+	GetVisibleCollections(ctx context.Context, actorID string) ([]*domain.Collection, error)
+	GetCollectionByID(ctx context.Context, actorID, id string) (*domain.Collection, error)
+
+	AdminSaveCollection(ctx context.Context, collection *domain.AdminCreateCollection) (*domain.AdminCollection, error)
+	AdminPatchCollection(ctx context.Context, collection *domain.AdminPatchCollection) (*domain.AdminCollection, error)
+	AdminGetCollectionByID(ctx context.Context, id string) (*domain.AdminCollection, error)
+	AdminFilterCollections(ctx context.Context, filter domain.AdminCollectionFilter) ([]*domain.AdminCollection, error)
+	AdminDeleteCollection(ctx context.Context, id string) error
+}
+
+type Story interface {
+	GetVisibleStories(ctx context.Context) ([]*domain.Story, error)
+	GetStoryByID(ctx context.Context, id string) (*domain.Story, error)
+
+	PatchStory(ctx context.Context, story *domain.StoryPatch) (*domain.Story, error)
+	SaveStory(ctx context.Context, story *domain.Story) (*domain.Story, error)
+	DeleteStoryByID(ctx context.Context, id string) error
+	FilterStories(ctx context.Context, filter domain.StoryFilter) ([]*domain.Story, error)
 }

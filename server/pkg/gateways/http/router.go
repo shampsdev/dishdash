@@ -6,6 +6,8 @@ import (
 	"dishdash.ru/pkg/gateways/http/lobby"
 	"dishdash.ru/pkg/gateways/http/metric"
 	"dishdash.ru/pkg/gateways/http/middlewares"
+	"dishdash.ru/pkg/gateways/http/place"
+	"dishdash.ru/pkg/gateways/http/story"
 	"dishdash.ru/pkg/gateways/http/tag"
 	"dishdash.ru/pkg/gateways/http/user"
 	"dishdash.ru/pkg/usecase"
@@ -25,6 +27,8 @@ func setupRouter(s *Server, useCases usecase.Cases) {
 		user.SetupHandlers(v1, useCases)
 		tag.SetupHandlers(v1, useCases)
 		collection.SetupHandlers(v1, useCases)
+		place.SetupHandlers(v1, useCases)
+		story.SetupHandlers(v1, useCases)
 	}
 
 	docs.SwaggerInfo.BasePath = "/api/v1"

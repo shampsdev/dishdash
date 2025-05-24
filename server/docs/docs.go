@@ -17,7 +17,11 @@ const docTemplate = `{
     "paths": {
         "/collections": {
             "get": {
-                "description": "Get a list of collections from the database",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -27,10 +31,10 @@ const docTemplate = `{
                 "tags": [
                     "collections"
                 ],
-                "summary": "Get collections",
+                "summary": "Get visible collections",
                 "responses": {
                     "200": {
-                        "description": "List of collections",
+                        "description": "Collections data",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -38,34 +42,8 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/collections/preview": {
-            "get": {
-                "description": "Get a list of collections preveiws from the database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "collections"
-                ],
-                "summary": "Get collections previews",
-                "responses": {
-                    "200": {
-                        "description": "List of collections previews",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/domain.CollectionPreview"
-                            }
-                        }
+                    "400": {
+                        "description": "Bad Request"
                     },
                     "500": {
                         "description": "Internal Server Error"
@@ -73,9 +51,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/collections/preview/{id}": {
+        "/collections/favorites": {
             "get": {
-                "description": "Get a collection preview with same id from database",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -85,22 +67,55 @@ const docTemplate = `{
                 "tags": [
                     "collections"
                 ],
-                "summary": "Get a collection preview",
+                "summary": "Get favorites",
+                "responses": {
+                    "200": {
+                        "description": "Collection",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Collection"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/collections/favorites/add_place/{place_id}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collections"
+                ],
+                "summary": "Add place to favorites",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Collection ID",
-                        "name": "id",
+                        "description": "Place ID",
+                        "name": "place_id",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Collection",
-                        "schema": {
-                            "$ref": "#/definitions/domain.CollectionPreview"
-                        }
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
                     },
                     "500": {
                         "description": "Internal Server Error"
@@ -108,9 +123,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/collections/{id}": {
-            "get": {
-                "description": "Get a collection with same id from database",
+        "/collections/favorites/remove_place/{place_id}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -120,7 +139,46 @@ const docTemplate = `{
                 "tags": [
                     "collections"
                 ],
-                "summary": "Get a collection",
+                "summary": "Remove place from favorites",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Place ID",
+                        "name": "place_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/collections/id/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collections"
+                ],
+                "summary": "Get collection by id",
                 "parameters": [
                     {
                         "type": "string",
@@ -136,6 +194,9 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/domain.Collection"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
                     },
                     "500": {
                         "description": "Internal Server Error"
@@ -238,6 +299,14 @@ const docTemplate = `{
                     "lobbies"
                 ],
                 "summary": "Get latest lobbies for user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "lobby data",
@@ -246,6 +315,92 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/domain.Lobby"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/places/address": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "places"
+                ],
+                "summary": "Get address by location",
+                "parameters": [
+                    {
+                        "description": "Location",
+                        "name": "location",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Coordinate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Place",
+                        "schema": {
+                            "$ref": "#/definitions/place.addressResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/places/id/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "places"
+                ],
+                "summary": "Get place by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Place ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Place",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Place"
                         }
                     },
                     "400": {
@@ -279,6 +434,84 @@ const docTemplate = `{
                                 "$ref": "#/definitions/domain.Tag"
                             }
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/stories": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stories"
+                ],
+                "summary": "Get visible stories",
+                "responses": {
+                    "200": {
+                        "description": "Story data",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Story"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/stories/id/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stories"
+                ],
+                "summary": "Get story by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Story",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Story"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
                     },
                     "500": {
                         "description": "Internal Server Error"
@@ -489,11 +722,11 @@ const docTemplate = `{
                         "$ref": "#/definitions/domain.Place"
                     }
                 },
+                "type": {
+                    "$ref": "#/definitions/domain.CollectionType"
+                },
                 "updatedAt": {
                     "type": "string"
-                },
-                "visible": {
-                    "type": "boolean"
                 }
             }
         },
@@ -508,34 +741,16 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.CollectionPreview": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "order": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "visible": {
-                    "type": "boolean"
-                }
-            }
+        "domain.CollectionType": {
+            "type": "string",
+            "enum": [
+                "basic",
+                "favorites"
+            ],
+            "x-enum-varnames": [
+                "CollectionTypeBasic",
+                "CollectionTypeFavorites"
+            ]
         },
         "domain.Coordinate": {
             "type": "object",
@@ -702,6 +917,55 @@ const docTemplate = `{
                 "RecommendationTypeClassic"
             ]
         },
+        "domain.Story": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "src": {
+                    "type": "string"
+                },
+                "stories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.StoryData"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "domain.StoryData": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.Swipe": {
             "type": "object",
             "properties": {
@@ -765,6 +1029,14 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "place.addressResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
                     "type": "string"
                 }
             }

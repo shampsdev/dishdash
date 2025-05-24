@@ -2,88 +2,152 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
+	"dishdash.ru/pkg/algo"
 	"dishdash.ru/pkg/domain"
 	"dishdash.ru/pkg/repo"
 )
 
 type CollectionUseCase struct {
 	cRepo repo.Collection
+	pRepo repo.Place
 }
 
-func NewCollectionUseCase(cRepo repo.Collection) *CollectionUseCase {
-	return &CollectionUseCase{cRepo: cRepo}
+func NewCollectionUseCase(cRepo repo.Collection, pRepo repo.Place) *CollectionUseCase {
+	return &CollectionUseCase{cRepo: cRepo, pRepo: pRepo}
 }
 
-func (cu *CollectionUseCase) SaveCollection(ctx context.Context, saveCollectionInput SaveCollectionInput) (*domain.Collection, error) {
-	collection := &domain.Collection{
-		Name:        saveCollectionInput.Name,
-		Description: saveCollectionInput.Description,
-		Avatar:      saveCollectionInput.Avatar,
-		Visible:     saveCollectionInput.Visible,
-		Order:       saveCollectionInput.Order,
-	}
-
-	id, err := cu.cRepo.SaveCollection(ctx, collection)
+func (c *CollectionUseCase) GetFavorites(ctx context.Context, actorID string) (*domain.Collection, error) {
+	favorites, err := c.getOrCreateFavorites(ctx, actorID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not get favorites: %w", err)
 	}
-
-	collection.ID = id
-	err = cu.cRepo.AttachPlacesToCollection(ctx, saveCollectionInput.Places, id)
+	favorites.Places, err = c.pRepo.GetPlacesByCollection(ctx, favorites.ID)
 	if err != nil {
-		return nil, err
-	}
-	return collection, nil
-}
-
-func (cu *CollectionUseCase) GetAllCollections(ctx context.Context) ([]*domain.Collection, error) {
-	return cu.cRepo.GetAllCollections(ctx)
-}
-
-func (cu *CollectionUseCase) DeleteCollection(ctx context.Context, collectionID string) error {
-	return cu.cRepo.DeleteCollectionByID(ctx, collectionID)
-}
-
-func (cu *CollectionUseCase) UpdateCollection(ctx context.Context, updateCollectionInput UpdateCollectionInput) (*domain.Collection, error) {
-	collection := &domain.Collection{
-		ID:          updateCollectionInput.ID,
-		Name:        updateCollectionInput.Name,
-		Description: updateCollectionInput.Description,
-		Avatar:      updateCollectionInput.Avatar,
-		Visible:     updateCollectionInput.Visible,
-		Order:       updateCollectionInput.Order,
+		return nil, fmt.Errorf("could not get places: %w", err)
 	}
 
-	err := cu.cRepo.UpdateCollection(ctx, collection)
+	return &favorites.Collection, nil
+}
+
+func (c *CollectionUseCase) getOrCreateFavorites(ctx context.Context, actorID string) (*domain.AdminCollection, error) {
+	filter := domain.AdminCollectionFilter{
+		CollectionFilter: domain.CollectionFilter{
+			Types: []domain.CollectionType{domain.CollectionTypeFavorites},
+		},
+		OwnerID: ptrTo(actorID),
+	}
+	collections, err := c.cRepo.FilterCollections(ctx, filter)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not get collections: %w", err)
 	}
 
-	err = cu.cRepo.DetachPlacesFromCollection(ctx, updateCollectionInput.ID)
+	if len(collections) == 0 {
+		id, err := c.createFavorites(ctx, actorID)
+		if err != nil {
+			return nil, fmt.Errorf("could not create favorites: %w", err)
+		}
+		return c.cRepo.GetCollectionByID(ctx, id)
+	}
+	return collections[0], nil
+}
+
+func (c *CollectionUseCase) createFavorites(ctx context.Context, actorID string) (string, error) {
+	collection := &domain.AdminCreateCollection{
+		CreateCollection: domain.CreateCollection{
+			Type: domain.CollectionTypeFavorites,
+			Name: "Избранное",
+		},
+		Visible: false,
+		OwnerID: actorID,
+	}
+	return c.cRepo.SaveCollection(ctx, collection)
+}
+
+func (c *CollectionUseCase) AddPlaceToFavorites(ctx context.Context, actorID string, placeID int64) error {
+	favorites, err := c.getOrCreateFavorites(ctx, actorID)
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("could not get favorites: %w", err)
 	}
-	err = cu.cRepo.AttachPlacesToCollection(ctx, updateCollectionInput.Places, updateCollectionInput.ID)
+
+	err = c.pRepo.AttachPlacesToCollection(ctx, []int64{placeID}, favorites.ID)
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("could not add place to favorites: %w", err)
 	}
 
-	return collection, nil
+	return nil
 }
 
-func (cu *CollectionUseCase) GetAllCollectionsWithPlaces(ctx context.Context) ([]*domain.Collection, error) {
-	return cu.cRepo.GetAllCollectionsWithPlaces(ctx)
+func (c *CollectionUseCase) RemovePlaceFromFavorites(ctx context.Context, actorID string, placeID int64) error {
+	favorites, err := c.getOrCreateFavorites(ctx, actorID)
+	if err != nil {
+		return fmt.Errorf("could not get favorites: %w", err)
+	}
+
+	err = c.pRepo.DetachPlaceFromCollection(ctx, placeID, favorites.ID)
+	if err != nil {
+		return fmt.Errorf("could not remove place from favorites: %w", err)
+	}
+
+	return nil
 }
 
-func (cu *CollectionUseCase) GetCollectionByID(ctx context.Context, collectionID string) (*domain.Collection, error) {
-	return cu.cRepo.GetCollectionWithPlacesByID(ctx, collectionID)
+func (c *CollectionUseCase) GetCollectionByID(ctx context.Context, _, id string) (*domain.Collection, error) {
+	collection, err := c.cRepo.GetCollectionByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("could not get collection: %w", err)
+	}
+
+	collection.Places, err = c.pRepo.GetPlacesByCollection(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("could not get places: %w", err)
+	}
+
+	return &collection.Collection, nil
 }
 
-func (cu *CollectionUseCase) GetAllCollectionsPreviews(ctx context.Context) ([]*domain.Collection, error) {
-	return cu.cRepo.GetAllCollections(ctx)
+func (c *CollectionUseCase) GetVisibleCollections(ctx context.Context, _ string) ([]*domain.Collection, error) {
+	collections, err := c.cRepo.FilterCollections(ctx, domain.AdminCollectionFilter{
+		Visible: ptrTo(true),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("could not get collections: %w", err)
+	}
+
+	return algo.Map(collections, func(c *domain.AdminCollection) *domain.Collection { return &c.Collection }), nil
 }
 
-func (cu *CollectionUseCase) GetCollectionPreviewByID(ctx context.Context, collectionID string) (*domain.Collection, error) {
-	return cu.cRepo.GetCollectionByID(ctx, collectionID)
+func (c *CollectionUseCase) AdminSaveCollection(ctx context.Context, collection *domain.AdminCreateCollection) (*domain.AdminCollection, error) {
+	id, err := c.cRepo.SaveCollection(ctx, collection)
+	if err != nil {
+		return nil, fmt.Errorf("could not save collection: %w", err)
+	}
+
+	return c.cRepo.GetCollectionByID(ctx, id)
+}
+
+func (c *CollectionUseCase) AdminGetCollectionByID(ctx context.Context, id string) (*domain.AdminCollection, error) {
+	return c.cRepo.GetCollectionByID(ctx, id)
+}
+
+func (c *CollectionUseCase) AdminPatchCollection(ctx context.Context, collection *domain.AdminPatchCollection) (*domain.AdminCollection, error) {
+	err := c.cRepo.PatchCollection(ctx, collection)
+	if err != nil {
+		return nil, fmt.Errorf("could not patch collection: %w", err)
+	}
+
+	return c.cRepo.GetCollectionByID(ctx, collection.ID)
+}
+
+func (c *CollectionUseCase) AdminFilterCollections(ctx context.Context, filter domain.AdminCollectionFilter) ([]*domain.AdminCollection, error) {
+	return c.cRepo.FilterCollections(ctx, filter)
+}
+
+func (c *CollectionUseCase) AdminDeleteCollection(ctx context.Context, id string) error {
+	return c.cRepo.DeleteCollection(ctx, id)
+}
+
+func ptrTo[T any](v T) *T {
+	return &v
 }

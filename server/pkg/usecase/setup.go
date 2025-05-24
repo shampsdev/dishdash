@@ -6,32 +6,35 @@ import (
 )
 
 func Setup(pool *pgxpool.Pool) Cases {
-	pr := pg.NewPlaceRepo(pool)
-	tr := pg.NewTagRepo(pool)
-	cr := pg.NewCollectionRepo(pool)
-	lr := pg.NewLobbyRepo(pool)
-	ur := pg.NewUserRepo(pool)
-	sr := pg.NewSwipeRepo(pool)
-	prr := pg.NewPlaceRecommenderRepo(pool)
-	pu := NewPlaceUseCase(tr, pr)
-	lu := NewLobbyUseCase(lr, ur, tr, pr, sr)
-	su := NewSwipeUseCase(sr)
-	uu := NewUserUseCase(ur)
-	cu := NewCollectionUseCase(cr)
+	placeRepo := pg.NewPlaceRepo(pool)
+	tagRepo := pg.NewTagRepo(pool)
+	collectionRepo := pg.NewCollectionRepo(pool, placeRepo)
+	lobbyRepo := pg.NewLobbyRepo(pool)
+	userRepo := pg.NewUserRepo(pool)
+	swipeRepo := pg.NewSwipeRepo(pool)
+	placeRecommenderRepo := pg.NewPlaceRecommenderRepo(pool)
+	storyRepo := pg.NewStoryRepo(pool)
+
+	placeCase := NewPlaceUseCase(tagRepo, placeRepo)
+	lobbyCase := NewLobbyUseCase(lobbyRepo, userRepo, tagRepo, placeRepo, swipeRepo)
+	swipeCase := NewSwipeUseCase(swipeRepo)
+	userCase := NewUserUseCase(userRepo)
+	collectionCase := NewCollectionUseCase(collectionRepo, placeRepo)
 	placeRecommender := NewPlaceRecommender(
-		prr,
-		pr,
-		tr,
-		cr,
+		placeRecommenderRepo,
+		placeRepo,
+		tagRepo,
 	)
+	storyCase := NewStoryUseCase(storyRepo)
 
 	return Cases{
-		Place:      pu,
-		Tag:        NewTagUseCase(tr),
-		Lobby:      lu,
-		User:       uu,
-		Swipe:      su,
-		Collection: cu,
-		RoomRepo:   NewInMemoryRoomRepo(lu, pu, su, uu, placeRecommender),
+		Place:      placeCase,
+		Tag:        NewTagUseCase(tagRepo),
+		Lobby:      lobbyCase,
+		User:       userCase,
+		Swipe:      swipeCase,
+		Collection: collectionCase,
+		Story:      storyCase,
+		RoomRepo:   NewInMemoryRoomRepo(lobbyCase, placeCase, swipeCase, userCase, placeRecommender),
 	}
 }

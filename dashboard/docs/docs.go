@@ -16,81 +16,6 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/collections": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get a list of collections from the database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "collections"
-                ],
-                "summary": "Get collections",
-                "responses": {
-                    "200": {
-                        "description": "List of collections",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/domain.Collection"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Update a collection with same id in the database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "collections"
-                ],
-                "summary": "Update a collection",
-                "parameters": [
-                    {
-                        "description": "Collection data",
-                        "name": "collection",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/usecase.UpdateCollectionInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Updated collection",
-                        "schema": {
-                            "$ref": "#/definitions/domain.Collection"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            },
             "post": {
                 "security": [
                     {
@@ -115,7 +40,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/usecase.SaveCollectionInput"
+                            "$ref": "#/definitions/domain.AdminCreateCollection"
                         }
                     }
                 ],
@@ -123,7 +48,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Saved collection",
                         "schema": {
-                            "$ref": "#/definitions/domain.Collection"
+                            "$ref": "#/definitions/domain.AdminCollection"
                         }
                     },
                     "400": {
@@ -158,7 +83,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/usecase.UpdateCollectionInput"
+                            "$ref": "#/definitions/domain.AdminPatchCollection"
                         }
                     }
                 ],
@@ -166,11 +91,59 @@ const docTemplate = `{
                     "200": {
                         "description": "Updated collection",
                         "schema": {
-                            "$ref": "#/definitions/domain.Collection"
+                            "$ref": "#/definitions/domain.AdminCollection"
                         }
                     },
                     "400": {
                         "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/collections/filter": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a list of collections preveiws from the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collections"
+                ],
+                "summary": "Get collections previews",
+                "parameters": [
+                    {
+                        "description": "Filter",
+                        "name": "filter",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.AdminCollectionFilter"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of collections previews",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/domain.AdminCollection"
+                                }
+                            }
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error"
@@ -209,7 +182,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Collection",
                         "schema": {
-                            "$ref": "#/definitions/domain.Collection"
+                            "$ref": "#/definitions/domain.AdminCollection"
                         }
                     },
                     "500": {
@@ -249,80 +222,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/collections/preview": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get a list of collections preveiws from the database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "collections"
-                ],
-                "summary": "Get collections previews",
-                "responses": {
-                    "200": {
-                        "description": "List of collections previews",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/domain.CollectionPreview"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/collections/preview/id/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get a collection preview with same id from database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "collections"
-                ],
-                "summary": "Get a collection preview",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Collection ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Collection",
-                        "schema": {
-                            "$ref": "#/definitions/domain.CollectionPreview"
-                        }
                     },
                     "500": {
                         "description": "Internal Server Error"
@@ -954,10 +853,224 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/stories": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new story in the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stories"
+                ],
+                "summary": "Create a story",
+                "parameters": [
+                    {
+                        "description": "Story data",
+                        "name": "story",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Story"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Saved story",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Story"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Patch a story with the same ID in the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stories"
+                ],
+                "summary": "Patch a story",
+                "parameters": [
+                    {
+                        "description": "Story data",
+                        "name": "story",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.StoryPatch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated story",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Story"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/stories/filter": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a list of story previews from the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stories"
+                ],
+                "summary": "Get stories previews",
+                "parameters": [
+                    {
+                        "description": "Filter",
+                        "name": "filter",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.StoryFilter"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of stories previews",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/domain.Story"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/stories/id/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a story with the same id from the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stories"
+                ],
+                "summary": "Get a story",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Story",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Story"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a story with the same ID in the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stories"
+                ],
+                "summary": "Delete a story",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "domain.Collection": {
+        "domain.AdminCollection": {
             "type": "object",
             "properties": {
                 "avatar": {
@@ -978,11 +1091,17 @@ const docTemplate = `{
                 "order": {
                     "type": "integer"
                 },
+                "ownerId": {
+                    "type": "string"
+                },
                 "places": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.Place"
                     }
+                },
+                "type": {
+                    "$ref": "#/definitions/domain.CollectionType"
                 },
                 "updatedAt": {
                     "type": "string"
@@ -992,13 +1111,62 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.CollectionPreview": {
+        "domain.AdminCollectionFilter": {
+            "type": "object",
+            "properties": {
+                "ownerID": {
+                    "type": "string"
+                },
+                "search": {
+                    "type": "string"
+                },
+                "types": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.CollectionType"
+                    }
+                },
+                "visible": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "domain.AdminCreateCollection": {
             "type": "object",
             "properties": {
                 "avatar": {
                     "type": "string"
                 },
-                "createdAt": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "ownerId": {
+                    "type": "string"
+                },
+                "places": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/domain.CollectionType"
+                },
+                "visible": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "domain.AdminPatchCollection": {
+            "type": "object",
+            "properties": {
+                "avatar": {
                     "type": "string"
                 },
                 "description": {
@@ -1013,13 +1181,33 @@ const docTemplate = `{
                 "order": {
                     "type": "integer"
                 },
-                "updatedAt": {
+                "ownerId": {
                     "type": "string"
+                },
+                "places": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/domain.CollectionType"
                 },
                 "visible": {
                     "type": "boolean"
                 }
             }
+        },
+        "domain.CollectionType": {
+            "type": "string",
+            "enum": [
+                "basic",
+                "favorites"
+            ],
+            "x-enum-varnames": [
+                "CollectionTypeBasic",
+                "CollectionTypeFavorites"
+            ]
         },
         "domain.Coordinate": {
             "type": "object",
@@ -1091,6 +1279,92 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.Story": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "src": {
+                    "type": "string"
+                },
+                "stories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.StoryData"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "domain.StoryData": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.StoryFilter": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "domain.StoryPatch": {
+            "type": "object",
+            "properties": {
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "src": {
+                    "type": "string"
+                },
+                "stories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.StoryData"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                }
+            }
+        },
         "domain.Tag": {
             "type": "object",
             "properties": {
@@ -1159,32 +1433,6 @@ const docTemplate = `{
                 }
             }
         },
-        "usecase.SaveCollectionInput": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "order": {
-                    "type": "integer"
-                },
-                "places": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "visible": {
-                    "type": "boolean"
-                }
-            }
-        },
         "usecase.SavePlaceInput": {
             "type": "object",
             "properties": {
@@ -1235,35 +1483,6 @@ const docTemplate = `{
                 },
                 "url": {
                     "type": "string"
-                }
-            }
-        },
-        "usecase.UpdateCollectionInput": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "order": {
-                    "type": "integer"
-                },
-                "places": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "visible": {
-                    "type": "boolean"
                 }
             }
         },

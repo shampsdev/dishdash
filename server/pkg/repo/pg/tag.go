@@ -39,7 +39,7 @@ func (tr *TagRepo) DeleteTag(ctx context.Context, tagId int64) error {
 }
 
 func (tr *TagRepo) UpdateTag(ctx context.Context, tag *domain.Tag) (*domain.Tag, error) {
-	query := `UPDATE "tag" SET "name" = $1, "icon" = $2, "visible" = $3, "order" = $4, "excluded" = $5 WHERE id = $5`
+	query := `UPDATE "tag" SET "name" = $1, "icon" = $2, "visible" = $3, "order" = $4, "excluded" = $5 WHERE id = $6`
 	_, err := tr.db.Exec(ctx, query, tag.Name, tag.Icon, tag.Visible, tag.Order, tag.Excluded, tag.ID)
 	if err != nil {
 		return tag, fmt.Errorf("could not update tag: %w", err)
