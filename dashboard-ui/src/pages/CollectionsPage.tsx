@@ -131,10 +131,22 @@ const CollectionsPage: React.FC = () => {
     setShowForm(true);
   };
 
-  const selectCollection = (collection: Collection) => {
-    setSelectedCollection(collection);
+  const selectCollection = async (collection: Collection) => {
+    if (!collection.id) {
+      setError('Collection ID is missing.');
+      setSelectedCollection(collection); // fallback to partial data
+      setIsCreating(false);
+      setShowForm(true);
+      return;
+    }
+    try {
+      const fullCollection = await fetchCollectionById(collection.id);
+      setSelectedCollection(fullCollection);
+    } catch {
+      setError('Failed to load collection details.');
+      setSelectedCollection(collection); // fallback to partial data
+    }
     setIsCreating(false);
-    // Show form view on mobile when selecting a collection
     setShowForm(true);
   };
 
@@ -279,7 +291,7 @@ const CollectionsPage: React.FC = () => {
             {collections.map((collection) => (
               <div
                 key={collection.id}
-                onClick={() => selectCollection(collection)}
+                onClick={async () => await selectCollection(collection)}
                 className={`p-3 rounded-md cursor-pointer transition-colors flex items-center ${
                   selectedCollection?.id === collection.id
                     ? 'bg-blue-900/30 border border-blue-500/50'
@@ -319,14 +331,6 @@ const CollectionsPage: React.FC = () => {
                     <span className="bg-gray-600 text-gray-300 px-2 py-0.5 rounded-full text-xs">
                       Order: {collection.order}
                     </span>
-                    <span className="bg-gray-600 text-gray-300 px-2 py-0.5 rounded-full text-xs">
-                      Places: {collection.places?.length || 0}
-                    </span>
-                    {collection.ownerId && (
-                      <span className="bg-gray-600 text-gray-300 px-2 py-0.5 rounded-full text-xs">
-                        Owner: {collection.ownerId.length > 8 ? collection.ownerId.substring(0, 8) + '...' : collection.ownerId}
-                      </span>
-                    )}
                   </div>
                 </div>
                 {deleteConfirmation === collection.id && (
@@ -427,7 +431,7 @@ const CollectionsPage: React.FC = () => {
       </div>
 
       {/* Desktop view - side by side layout */}
-      <div className="hidden md:grid md:grid-cols-2 gap-6 h-full">
+      <div className="hidden md:grid md:grid-cols-[320px,1fr] gap-6 h-full">
         <CollectionListWrapper />
         <div className="h-full">
           {selectedCollection || isCreating ? (

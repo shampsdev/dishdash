@@ -104,22 +104,6 @@ const TagsPage: React.FC = () => {
     setShowForm(false);
   };
 
-  // Empty state component with consistent sizing
-  const EmptyState = () => (
-    <div className="flex flex-col items-center justify-center h-full">
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-      </svg>
-      <p className="mt-4 text-gray-400">Select a tag from the list or create a new one</p>
-      <button
-        onClick={startCreating}
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-      >
-        Create New Tag
-      </button>
-    </div>
-  );
-
   // Tag list component
   const TagList = () => (
     <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col h-full">
@@ -230,33 +214,32 @@ const TagsPage: React.FC = () => {
     <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col h-full">
       <div className="p-4 bg-gray-700 flex justify-between items-center">
         <h2 className="text-lg font-medium text-white">
-          {isCreating ? 'Create New Tag' : selectedTag ? 'Edit Tag' : 'Select or Create a Tag'}
+          {isCreating ? 'Create Tag' : 'Edit Tag'}
         </h2>
-        {/* Back button only visible on mobile */}
-        <button
-          onClick={handleBackToList}
-          className="md:hidden px-3 py-1 bg-gray-600 text-white text-sm rounded-md hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
-        >
-          Back
-        </button>
+        {/* Back button for mobile view */}
+        <div className="md:hidden">
+          <button
+            onClick={handleBackToList}
+            className="p-1 text-gray-300 hover:text-white"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </button>
+        </div>
       </div>
-      <div className="h-[calc(580px-56px)] p-6 overflow-visible">
-        {isCreating ? (
+      
+      <div className="flex-1 overflow-y-auto p-4 min-h-[calc(100vh-200px)] md:min-h-0">
+        {selectedTag || isCreating ? (
           <TagForm
-            onSubmit={handleCreateTag}
+            tag={selectedTag || undefined}
+            onSubmit={isCreating ? handleCreateTag : handleUpdateTag}
             onCancel={cancelForm}
           />
-        ) : selectedTag ? (
-          <TagForm
-            tag={selectedTag}
-            onSubmit={handleUpdateTag}
-            onCancel={() => {
-              setSelectedTag(null);
-              setShowForm(false);
-            }}
-          />
         ) : (
-          <EmptyState />
+          <div className="flex justify-center items-center h-full text-gray-400">
+            Select a tag to edit or create a new one
+          </div>
         )}
       </div>
     </div>
@@ -291,7 +274,26 @@ const TagsPage: React.FC = () => {
 
           {/* Right column - Form (hidden on mobile when showing list) */}
           <div className={`w-full md:w-2/3 ${showForm ? 'block' : 'hidden md:block'} h-[580px] md:h-auto`}>
-            <FormContainer />
+            <div className="h-full">
+              {selectedTag || isCreating ? (
+                <FormContainer />
+              ) : (
+                <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden h-full">
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    <p className="mt-4 text-gray-400">Select a tag from the list or create a new one</p>
+                    <button
+                      onClick={startCreating}
+                      className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                    >
+                      Create New Tag
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

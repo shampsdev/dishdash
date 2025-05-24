@@ -31,7 +31,11 @@ const CollectionForm: React.FC<CollectionFormProps> = ({ collection, onSubmit, o
       setOwnerId(collection.ownerId || '');
       setType(collection.type || 'basic');
       setVisible(collection.visible);
-      setPlaces(collection.places || []);
+      if (Array.isArray(collection.places) && collection.places.length > 0 && collection.places.every(p => typeof p === 'object' && p !== null && 'id' in p)) {
+        setPlaces((collection.places as {id: number}[]).map((p) => p.id));
+      } else {
+        setPlaces(collection.places as number[] || []);
+      }
     } else {
       // Reset form if creating a new collection
       setName('');

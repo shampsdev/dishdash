@@ -77,6 +77,13 @@ const PlacesMultiSelect: React.FC<PlacesMultiSelectProps> = ({ selectedPlaces, o
     return selectedPlacesDetails;
   };
 
+  const sortedPlaces = [...filteredPlaces].sort((a, b) => {
+    const aSelected = selectedPlaces.includes(a.id!);
+    const bSelected = selectedPlaces.includes(b.id!);
+    if (aSelected === bSelected) return 0;
+    return aSelected ? -1 : 1;
+  });
+
   return (
     <div className="relative" ref={dropdownRef}>
       <div
@@ -151,7 +158,7 @@ const PlacesMultiSelect: React.FC<PlacesMultiSelectProps> = ({ selectedPlaces, o
             </div>
           ) : (
             <div className="py-1">
-              {filteredPlaces.map(place => (
+              {sortedPlaces.map(place => (
                 <div
                   key={place.id}
                   className={`flex items-center px-3 py-2 cursor-pointer hover:bg-gray-600 ${

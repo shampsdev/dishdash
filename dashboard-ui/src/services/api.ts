@@ -73,19 +73,20 @@ export const fetchTags = async () => {
   return response.data;
 };
 
-export const createTag = async (tagData: FormData) => {
+export const createTag = async (tagData: Omit<Tag, 'id'>) => {
   const response = await axios.post('/places/tag', tagData);
   return response.data;
 };
 
 export const updateTag = async (id: number, formData: FormData) => {
-  // Convert FormData to a tag object
-  const tagData: Partial<Tag> = {
+  const orderString = formData.get('order') as string;
+  const order = parseInt(orderString, 10);
+  const tagData: Tag = {
     id: id,
     name: formData.get('name') as string,
     icon: formData.get('icon') as string,
     visible: formData.get('visible') === 'true',
-    order: parseInt(formData.get('order') as string),
+    order: isNaN(order) ? 0 : order,
     excluded: formData.get('excluded') === 'true'
   };
   
