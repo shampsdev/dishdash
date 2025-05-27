@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import TagsPage from './pages/TagsPage';
 import StoriesPage from './pages/StoriesPage';
 import PlacesPage from './pages/PlacesPage';
+import PlacesMapPage from './pages/PlacesMapPage';
 import CollectionsPage from './pages/CollectionsPage';
 import Dashboard from './pages/Dashboard';
 
@@ -77,6 +78,19 @@ const App: React.FC = () => {
                     <Header />
                     <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                       <StoriesPage />
+                    </main>
+                  </>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/places-map"
+              element={
+                <ProtectedRoute>
+                  <>
+                    <Header />
+                    <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 h-screen">
+                      <PlacesMapPage />
                     </main>
                   </>
                 </ProtectedRoute>
