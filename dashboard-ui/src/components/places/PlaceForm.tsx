@@ -52,7 +52,8 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ place, onSubmit, onCancel, isCrea
       setAddress(place.address || '');
       setUrl(place.url || '');
       setSource(place.source || 'api');
-      setImages(place.images || []);
+      // Filter out any empty strings from images array
+      setImages((place.images || []).filter(img => img && img.trim() !== ''));
       setLocation({
         lat: place.location?.lat?.toString() || '0',
         lon: place.location?.lon?.toString() || '0'
@@ -131,7 +132,7 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ place, onSubmit, onCancel, isCrea
           lat: parseFloat(latValue) || 0,
           lon: parseFloat(lonValue) || 0
         },
-        priceAvg: parseInt(priceAvg) || 0,
+        priceMin: parseInt(priceAvg) || 0,
         boost: parseFloat(boost.replace(',', '.')) || 0,
         boostRadius: parseFloat(boostRadius.replace(',', '.')) || 0,
         tags
@@ -399,7 +400,7 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ place, onSubmit, onCancel, isCrea
                   <button
                     type="button"
                     onClick={() => handleRemovePendingUrl(index)}
-                    className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-70 hover:opacity-100 transition-opacity z-20 pointer-events-auto"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -413,7 +414,7 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ place, onSubmit, onCancel, isCrea
                   <button
                     type="button"
                     onClick={() => handleRemovePendingFile(index)}
-                    className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-70 hover:opacity-100 transition-opacity z-20 pointer-events-auto"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -426,7 +427,7 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ place, onSubmit, onCancel, isCrea
         )}
         
         {/* Existing Images Horizontal Scroll with Drag & Drop */}
-        {images.length > 0 ? (
+        {images && images.length > 0 ? (
           <div>
             <div className="flex justify-between items-center mb-2">
               <h4 className="text-sm font-medium text-gray-300">Existing Images</h4>
@@ -449,7 +450,7 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ place, onSubmit, onCancel, isCrea
                   onDrop={(e) => handleDrop(e, index)}
                   onDragEnd={handleDragEnd}
                 >
-                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 z-10">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 z-10 pointer-events-none">
                     <div className="text-white text-sm font-medium">
                       Drag to reorder
                     </div>
@@ -458,7 +459,7 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ place, onSubmit, onCancel, isCrea
                     #{index + 1}
                   </div>
                   <img
-                    src={image}
+                    src={image && image.trim() ? image : undefined}
                     alt={`Image ${index + 1}`}
                     className="w-48 sm:w-64 h-36 sm:h-48 object-cover"
                     onError={(e) => {
@@ -470,7 +471,7 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ place, onSubmit, onCancel, isCrea
                   <button
                     type="button"
                     onClick={() => handleRemoveImage(index)}
-                    className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 opacity-70 hover:opacity-100 transition-opacity z-20 pointer-events-auto"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
