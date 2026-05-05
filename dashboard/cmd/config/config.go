@@ -22,6 +22,7 @@ type Config struct {
 		Host     string `envconfig:"POSTGRES_HOST"`
 		Port     uint16 `envconfig:"POSTGRES_PORT"`
 		Database string `envconfig:"POSTGRES_DB"`
+		SSLMode  string `default:"disable" envconfig:"POSTGRES_SSLMODE"`
 	}
 	Auth struct {
 		ApiToken string `envconfig:"API_TOKEN"`
@@ -68,12 +69,13 @@ func Print() {
 
 func (c Config) DBUrl() string {
 	return fmt.Sprintf(
-		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
 		C.DB.User,
 		C.DB.Password,
 		C.DB.Host,
 		C.DB.Port,
 		C.DB.Database,
+		C.DB.SSLMode,
 	)
 }
 

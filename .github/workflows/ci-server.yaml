@@ -1,14 +1,17 @@
 name: ci-server
 
 
-on: 
+on:
   workflow_call:
+  workflow_dispatch:
   push:
     paths:
       - 'server/**'
+      - '.github/workflows/ci-server.yaml'
   pull_request:
     paths:
       - 'server/**'
+      - '.github/workflows/ci-server.yaml'
 
 jobs:
   build:
@@ -31,9 +34,10 @@ jobs:
           go build -v ./...
 
       - name: Lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.63.4
+          version: v1.64.8
+          install-mode: goinstall
           working-directory: ./server
       
       - name: Unit test

@@ -26,6 +26,16 @@ on:
         required: true
         description: name of secret value
         type: string
+      push_to_ghcr:
+        required: false
+        type: boolean
+        default: false
+        description: also publish to ghcr.io with main-<sha>-<ts> tag for Flux ImagePolicy
+      ghcr_image_name:
+        required: false
+        type: string
+        default: ""
+        description: name of image on ghcr (defaults to image_name)
 
 jobs:
   push_to_registry:
@@ -51,12 +61,21 @@ jobs:
         run: |
           calculatedSha=$(git rev-parse --short ${{ github.sha }})
           echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
+          echo "BUILD_TS=$(date +%s)" >> $GITHUB_ENV
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Log in to GHCR
+        if: inputs.push_to_ghcr
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Define Docker tags
         run: |
@@ -65,9 +84,14 @@ jobs:
           elif [ "${{ inputs.environment }}" == "PROD" ]; then
               echo "VERSION_TAG=latest" >> $GITHUB_ENV
           fi
+          GHCR_NAME="${{ inputs.ghcr_image_name }}"
+          if [ -z "$GHCR_NAME" ]; then GHCR_NAME="${{ inputs.image_name }}"; fi
+          REPO_OWNER_LC="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          echo "GHCR_REPO=ghcr.io/$REPO_OWNER_LC/$GHCR_NAME" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         id: push
+        if: ${{ !inputs.push_to_ghcr }}
         uses: docker/build-push-action@v5
         with:
           context: ./${{ inputs.context_path }}
@@ -76,6 +100,19 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/${{ inputs.image_name }}:${{ env.VERSION_TAG }}
             ${{ secrets.DOCKER_USERNAME }}/${{ inputs.image_name }}:${{ env.COMMIT_SHORT_SHA }}
+
+      - name: Build and push to Docker Hub + GHCR
+        if: inputs.push_to_ghcr
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ inputs.context_path }}
+          file: ./${{ inputs.dockerfile_path }}/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/${{ inputs.image_name }}:${{ env.VERSION_TAG }}
+            ${{ secrets.DOCKER_USERNAME }}/${{ inputs.image_name }}:${{ env.COMMIT_SHORT_SHA }}
+            ${{ env.GHCR_REPO }}:${{ env.VERSION_TAG }}
+            ${{ env.GHCR_REPO }}:main-${{ env.COMMIT_SHORT_SHA }}-${{ env.BUILD_TS }}
 
       - name: Docker hub push notification
         uses: containrrr/shoutrrr-action@v1
