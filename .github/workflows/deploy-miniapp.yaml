@@ -24,3 +24,4 @@ jobs:
       image_name: 'dishdash-miniapp'
       environment: ${{ github.event.inputs.environment }}
       secret-service-hash: ${{ github.event.inputs.environment == 'PROD' && 'MINIAPP_SERVICE_HASH' || 'MINIAPP_SERVICE_HASH_DEV' }}
+      push_to_ghcr: true

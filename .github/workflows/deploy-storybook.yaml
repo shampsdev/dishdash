@@ -24,3 +24,4 @@ jobs:
       image_name: 'dishdash-storybook'
       environment: ${{ github.event.inputs.environment }}
       secret-service-hash: ${{ github.event.inputs.environment == 'PROD' && 'STORYBOOK_SERVICE_HASH' || 'STORYBOOK_SERVICE_HASH_DEV' }}
+      push_to_ghcr: true

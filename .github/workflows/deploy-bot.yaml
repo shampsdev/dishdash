@@ -24,3 +24,4 @@ jobs:
       image_name: 'dishdash-bot'
       environment: ${{ github.event.inputs.environment }}
       secret-service-hash: ${{ github.event.inputs.environment == 'PROD' && 'BOT_SERVICE_HASH' || 'BOT_SERVICE_HASH_DEV' }}
+      push_to_ghcr: true

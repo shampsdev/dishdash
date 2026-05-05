@@ -28,3 +28,4 @@ jobs:
       image_name: 'dishdash-backend'
       environment: ${{ github.event.inputs.environment }}
       secret-service-hash: ${{ github.event.inputs.environment == 'PROD' && 'SERVER_SERVICE_HASH' || 'SERVER_SERVICE_HASH_DEV' }}
+      push_to_ghcr: true
