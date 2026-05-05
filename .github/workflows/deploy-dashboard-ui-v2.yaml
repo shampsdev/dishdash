@@ -1,0 +1,26 @@
+name: deploy-dashboard-ui-v2
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: true
+        description: Deploy to DEV/PROD
+        type: choice
+        options: [DEV, PROD]
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy.yaml
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    secrets: inherit
+    with:
+      dockerfile_path: 'dashboard-ui-v2'
+      context_path: 'dashboard-ui-v2'
+      image_name: 'dishdash-dashboard-v2'
+      environment: ${{ github.event.inputs.environment }}
+      secret-service-hash: ${{ github.event.inputs.environment == 'PROD' && 'DASHBOARD_UI_V2_HASH' || 'DASHBOARD_UI_V2_HASH_DEV' }}

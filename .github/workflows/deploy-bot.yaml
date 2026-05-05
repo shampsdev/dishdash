@@ -1,0 +1,26 @@
+name: deploy-bot
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: true
+        description: Deploy to DEV/PROD
+        type: choice
+        options: [DEV, PROD]
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy.yaml
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    secrets: inherit
+    with:
+      dockerfile_path: 'bot'
+      context_path: 'bot'
+      image_name: 'dishdash-bot'
+      environment: ${{ github.event.inputs.environment }}
+      secret-service-hash: ${{ github.event.inputs.environment == 'PROD' && 'BOT_SERVICE_HASH' || 'BOT_SERVICE_HASH_DEV' }}
