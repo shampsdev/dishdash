@@ -1,0 +1,19 @@
+{
+  "configurations": {
+    "run - js-debug": {
+      "adapter": "js-debug",
+      "configuration": {
+        "request": "attach",
+        "outDir": "${workspaceRoot}/dist",
+        "skipFiles": ["<node_internals>/**"],
+        "cwd": "${workspaceRoot}"
+      },
+      "breakpoints": {
+        "exception": {
+          "all": "",
+          "uncaught": ""
+        }
+      }
+    }
+  }
+}
