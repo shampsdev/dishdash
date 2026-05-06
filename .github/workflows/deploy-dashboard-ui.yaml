@@ -24,3 +24,4 @@ jobs:
       image_name: 'dishdash-dashboard'
       environment: ${{ github.event.inputs.environment }}
       secret-service-hash: ${{ github.event.inputs.environment == 'PROD' && 'DASHBOARD_UI_HASH' || 'DASHBOARD_UI_HASH_DEV' }}
+      push_to_ghcr: true
